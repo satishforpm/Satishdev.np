@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() { return request.auth != null && request.auth.token.admin == true; }
+    function owns(courseId) { return request.auth != null && exists(/databases/$(database)/documents/enrollments/$(request.auth.uid + '_' + courseId)); }
+
+    match /users/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow create: if request.auth != null && request.auth.uid == uid
+                    && request.resource.data.keys().hasOnly(['name','email','createdAt']);
+      allow update: if request.auth != null && request.auth.uid == uid
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name']);
+    }
+    match /courses/{courseId} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow write: if isAdmin();
+      match /lessons/{lessonId} {
+        allow read: if isAdmin() || owns(courseId);
+        allow write: if isAdmin();
+      }
+    }
+    match /site/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    // Orders and enrollments are written only by the server (Cloud Functions use the Admin SDK).
+    match /orders/{orderId} {
+      allow read: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
+      allow write: if false;
+    }
+    match /enrollments/{id} {
+      allow read: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
+      allow write: if false;
+    }
+  }
+}
