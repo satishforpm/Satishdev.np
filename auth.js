@@ -1,85 +1,70 @@
 
-const supabaseClient = window.supabase.createClient(
-  window.SUPABASE_URL,
-  window.SUPABASE_PUBLISHABLE_KEY
-);
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
-// SIGN UP — email verification required
-async function signUp(email, password, fullName) {
-  const { data, error } = await supabaseClient.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { full_name: fullName },
-      emailRedirectTo: window.location.origin + "/login.html"
-    }
-  });
+import { auth } from "./config.js";
 
-  if (error) throw error;
-  return data;
-}
-
-// LOGIN — email + password
-async function login(email, password) {
-  const { data, error } =
-    await supabaseClient.auth.signInWithPassword({
+// SIGNUP
+export async function signup(email, password) {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
       email,
       password
-    });
+    );
 
-  if (error) throw error;
-  return data;
+    return {
+      success: true,
+      user: userCredential.user
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message
+    };
+  }
 }
 
-// SEND LOGIN OTP — existing accounts only
-async function sendEmailCode(email) {
-  const { error } = await supabaseClient.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: false }
-  });
+// LOGIN
+export async function login(email, password) {
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
-  if (error) throw error;
-}
-
-// VERIFY LOGIN OTP
-async function verifyEmailCode(email, code) {
-  const { data, error } = await supabaseClient.auth.verifyOtp({
-    email,
-    token: code,
-    type: "email"
-  });
-
-  if (error) throw error;
-  return data;
-}
-
-// GOOGLE LOGIN
-async function loginWithGoogle() {
-  const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: window.location.origin + "/login.html"
-    }
-  });
-
-  if (error) throw error;
-}
-
-// FACEBOOK LOGIN
-async function loginWithFacebook() {
-  const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider: "facebook",
-    options: {
-      redirectTo: window.location.origin + "/login.html"
-    }
-  });
-
-  if (error) throw error;
+    return {
+      success: true,
+      user: userCredential.user
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message
+    };
+  }
 }
 
 // LOGOUT
-async function logout() {
-  const { error } = await supabaseClient.auth.signOut();
-  if (error) throw error;
-             }
-    
+export async function logout() {
+  try {
+    await signOut(auth);
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+}
+
+// CHECK LOGIN STATUS
+export function checkAuth(callback) {
+  return onAuthStateChanged(auth, callback);
+  }
+      
