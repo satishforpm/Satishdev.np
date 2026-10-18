@@ -196,4 +196,23 @@ addEventListener("hashchange",route);
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 addEventListener("load",()=>setTimeout(()=>{const l=$("#ld");if(l){l.style.opacity=0;setTimeout(()=>l.remove(),500)}},400));
 route();initFB();
-</script></body></html>
+ 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "satishdevnp.firebaseapp.com",
+    projectId: "satishdevnp",
+    storageBucket: "satishdevnp.firebasestorage.app",
+    messagingSenderId: "861342661284",
+    appId: "1:861342661284:web:3699a20cb3625b2ab5c431",
+    measurementId: "G-DWDWY42Y7F"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+</script>
+</body>
+</html>
