@@ -1,70 +1,25 @@
 
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
-import { auth } from "./config.js";
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDggnZQRpuCnoZ91Vmym_Izkbe0yTpCxGc",
+  authDomain: "satishdevnp1.firebaseapp.com",
+  projectId: "satishdevnp1",
+  storageBucket: "satishdevnp1.firebasestorage.app",
+  messagingSenderId: "742944901732",
+  appId: "1:742944901732:web:07275492ed919876762d71",
+  measurementId: "G-SMQZC70B08"
+};
 
-// SIGNUP
-export async function signup(email, password) {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+// Initialize Firebase
+const app = getApps().length
+  ? getApp()
+  : initializeApp(firebaseConfig);
 
-    return {
-      success: true,
-      user: userCredential.user
-    };
-  } catch (error) {
-    return {
-      success: false,
-      message: error.message
-    };
-  }
-}
+// Initialize Authentication
+export const auth = getAuth(app);
 
-// LOGIN
-export async function login(email, password) {
-  try {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-    return {
-      success: true,
-      user: userCredential.user
-    };
-  } catch (error) {
-    return {
-      success: false,
-      message: error.message
-    };
-  }
-}
-
-// LOGOUT
-export async function logout() {
-  try {
-    await signOut(auth);
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      message: error.message
-    };
-  }
-}
-
-// CHECK LOGIN STATUS
-export function checkAuth(callback) {
-  return onAuthStateChanged(auth, callback);
-  }
-      
+// Export Firebase App
+export default app;
